@@ -1,2 +1,1 @@
-DeepShield-AI
-AI Powered DeepFake Detection System using Deep Learning
+DeepShield-AI is an AI-powered DeepFake Detection System designed to identify manipulated videos and images using advanced machine learning and deep learning techniques. The project focuses on improving digital trust and preventing misinformation caused by AI-generated fake media.
