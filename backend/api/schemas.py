@@ -46,6 +46,7 @@ class DetectionResult(BaseModel):
     audio_score: Optional[float] = Field(None, description="Audio deepfake score")
     timestamp: str = Field(..., description="Detection timestamp")
     processing_time_ms: Optional[int] = Field(None, description="Processing time in milliseconds")
+    demo_mode: Optional[bool] = Field(None, description="True if untrained/demo model weights were used")
 
 
 class BatchResult(BaseModel):
@@ -84,3 +85,65 @@ class ErrorResponse(BaseModel):
     error: str
     detail: Optional[str] = None
     timestamp: str
+
+
+# --- Auth schemas ---
+
+class UserCreate(BaseModel):
+    email: str = Field(..., description="User email address")
+    password: str = Field(..., min_length=8, description="Password (min 8 characters)")
+    full_name: Optional[str] = Field(None, max_length=100)
+
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+
+class UserOut(BaseModel):
+    id: str
+    email: str
+    full_name: Optional[str] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserOut
+
+
+# --- History / stats schemas ---
+
+class DetectionRecordOut(BaseModel):
+    id: str
+    filename: str
+    media_type: str
+    is_deepfake: bool
+    confidence: float
+    model_type: str
+    processing_time_ms: int
+    demo_mode: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class PaginatedDetections(BaseModel):
+    items: List[DetectionRecordOut]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int
+
+
+class UserStatistics(BaseModel):
+    total_detections: int
+    deepfakes_detected: int
+    authentic_detected: int
+    average_confidence: float
+    average_processing_time_ms: float
