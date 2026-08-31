@@ -3,6 +3,7 @@ Ensemble Deepfake Detection Model
 Combines CNN, EfficientNet, Xception, and Vision Transformer
 """
 
+import os
 import torch
 import torch.nn as nn
 import numpy as np
@@ -33,12 +34,25 @@ class EnsembleDetector:
         """
         self.model_dir = model_dir
         self.device = device or ('cuda' if torch.cuda.is_available() else 'cpu')
-        
+
         logger.info(f"Initializing ensemble on {self.device}")
-        
+
         # Initialize models
         self.models = {}
         self.load_models()
+
+        # Track whether we're running with real trained weights or
+        # randomly-initialized "demo" weights, so the API can be honest
+        # about the trustworthiness of predictions.
+        self.demo_mode = self._load_checkpoints_if_available()
+        if self.demo_mode:
+            logger.warning(
+                "No trained model checkpoints found in '%s' — running with "
+                "RANDOMLY INITIALIZED weights. Predictions are not meaningful "
+                "until real checkpoints are added. See README for how to plug "
+                "in trained weights.",
+                self.model_dir,
+            )
         
         # Ensemble weights (based on validation performance)
         self.ensemble_weights = {
@@ -79,7 +93,33 @@ class EnsembleDetector:
         except Exception as e:
             logger.error(f"Error loading models: {e}")
             raise
-    
+
+    def _load_checkpoints_if_available(self) -> bool:
+        """
+        Attempt to load real trained weights for each model from
+        `<model_dir>/<name>.pt`. Returns True if we're still in demo mode
+        (i.e. at least one model has no checkpoint and is running with
+        random init), False if every model loaded a real checkpoint.
+
+        This makes it a one-step process to go from demo to production:
+        just drop trained .pt files into the configured weights directory.
+        """
+        any_missing = False
+        for name, model in self.models.items():
+            checkpoint_path = os.path.join(self.model_dir, f"{name}.pt")
+            if os.path.isfile(checkpoint_path):
+                try:
+                    state_dict = torch.load(checkpoint_path, map_location=self.device)
+                    model.load_state_dict(state_dict)
+                    model.eval()
+                    logger.info(f"Loaded trained checkpoint for '{name}' from {checkpoint_path}")
+                except Exception as e:
+                    logger.error(f"Found checkpoint for '{name}' but failed to load it: {e}")
+                    any_missing = True
+            else:
+                any_missing = True
+        return any_missing
+
     def predict(self, image: np.ndarray) -> Tuple[bool, float, Dict[str, float]]:
         """
         Predict whether image is deepfake using ensemble
