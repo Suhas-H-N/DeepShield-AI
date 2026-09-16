@@ -1,0 +1,126 @@
+.navbar {
+  height: var(--nav-height);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 900;
+}
+
+.navbar-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  height: 100%;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.brand-mark {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--authentic);
+  box-shadow: 0 0 8px var(--authentic);
+}
+
+.navbar-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.navbar-links a {
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  font-weight: 500;
+  padding: 6px 0;
+  border-bottom: 2px solid transparent;
+}
+
+.navbar-links a.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--authentic);
+}
+
+.navbar-auth {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 8px;
+}
+
+.navbar-auth .btn {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.navbar-user {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-right: 4px;
+}
+
+@media (max-width: 720px) {
+  .navbar-toggle {
+    display: block;
+  }
+
+  .navbar-links {
+    position: absolute;
+    top: var(--nav-height);
+    left: 0;
+    right: 0;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 8px 20px 16px;
+    display: none;
+  }
+
+  .navbar-links.open {
+    display: flex;
+  }
+
+  .navbar-links a {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .navbar-auth {
+    flex-direction: column;
+    align-items: stretch;
+    margin: 12px 0 0;
+    gap: 8px;
+  }
+
+  .navbar-user {
+    text-align: center;
+    margin: 0 0 4px;
+  }
+}
